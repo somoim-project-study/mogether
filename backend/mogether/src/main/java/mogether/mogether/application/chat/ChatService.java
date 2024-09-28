@@ -1,16 +1,17 @@
 package mogether.mogether.application.chat;
 
 import lombok.RequiredArgsConstructor;
-import mogether.mogether.application.user.UserService;
 import mogether.mogether.domain.chat.ChatMessage;
 import mogether.mogether.domain.chat.ChatRoom;
 import mogether.mogether.domain.chat.RedisChatMessageRepository;
+import mogether.mogether.domain.user.RedisUserRepository;
 import mogether.mogether.domain.user.User;
 import mogether.mogether.web.chat.*;
 import mogether.mogether.web.chat.dto.ChatMessageRequest;
 import mogether.mogether.web.chat.dto.ChatMessageResponse;
 import mogether.mogether.web.chat.dto.ChatRoomListResponse;
 import mogether.mogether.web.chat.dto.ChatRoomResponse;
+import mogether.mogether.web.user.dto.UserCache;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +25,11 @@ public class ChatService {
 
     private final ChatRoomService chatRoomService;
     private final RedisChatMessageRepository redisChatMessageRepository;
-    private final UserService userService;
+    private final RedisUserRepository redisUserRepository;
     private final RedisPublisher redisPublisher;
 
     public void sendMessage(ChatMessageRequest request) {
-        //todo: user info caching
-        User user = userService.findById(request.getSenderId());
+        UserCache user = redisUserRepository.findById(request.getSenderId());
 
         //채팅 생성/저장
         ChatMessage chatMessage = createChatMessage(request, user);
@@ -60,13 +60,13 @@ public class ChatService {
         return "chatRoom:" + roomId;
     }
 
-    private ChatMessage createChatMessage(ChatMessageRequest request, User user) {
+    private ChatMessage createChatMessage(ChatMessageRequest request, UserCache user) {
         return ChatMessage.builder()
                 .id(UUID.randomUUID().toString())
                 .roomId(request.getRoomId())
-                .senderId(user.getId())
-                .senderNickname(user.getNickname())
-                .senderImageUrl(user.getImageUrl())
+                .senderId(user.getSenderId())
+                .senderNickname(user.getSenderNickname())
+                .senderImageUrl(user.getSenderImageUrl())
                 .message(request.getMessage())
                 .createdAt(request.getCreatedAt())
                 .build();

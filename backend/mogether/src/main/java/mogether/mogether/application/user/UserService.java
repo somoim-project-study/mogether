@@ -22,6 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ProfileImageService profileImageService;
+    private final RedisUserRepository redisUserRepository;
 
     public UserJoinResponse join(UserJoinRequest userJoinRequest, MultipartFile image) {
         checkEmailExists(userJoinRequest.getEmail());
@@ -37,11 +38,11 @@ public class UserService {
     public UserUpdateResponse update(Long userId, AppUser appUser,
                                      UserUpdateRequest userUpdateRequest, MultipartFile image) {
         validateUser(userId, appUser.getId());
-
         User findUser = findById(userId);
+
         profileImageService.update(findUser, image);
         updateUser(userUpdateRequest, findUser);
-
+        redisUserRepository.update(UserCache.of(findUser));
         return UserUpdateResponse.of(findUser);
     }
 
