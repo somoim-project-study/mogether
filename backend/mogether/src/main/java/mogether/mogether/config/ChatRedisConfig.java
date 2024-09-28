@@ -3,6 +3,7 @@ package mogether.mogether.config;
 import mogether.mogether.domain.chat.ChatMessage;
 import mogether.mogether.web.chat.RedisSubscriber;
 import mogether.mogether.web.chat.dto.ChatMessageResponse;
+import mogether.mogether.web.user.dto.UserCache;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -64,6 +65,16 @@ public class ChatRedisConfig {
         chatMessageRedisTemplate.setConnectionFactory(chatRedisConnectionFactory());
         chatMessageRedisTemplate.setKeySerializer(new StringRedisSerializer());
         chatMessageRedisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatMessage.class));
+        return chatMessageRedisTemplate;
+    }
+
+    @Bean
+    @Qualifier("userRedisTemplate")
+    public RedisTemplate<String, UserCache> userRedisTemplate() {
+        RedisTemplate<String, UserCache> chatMessageRedisTemplate = new RedisTemplate<>();
+        chatMessageRedisTemplate.setConnectionFactory(chatRedisConnectionFactory());
+        chatMessageRedisTemplate.setKeySerializer(new StringRedisSerializer());
+        chatMessageRedisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserCache.class));
         return chatMessageRedisTemplate;
     }
 
