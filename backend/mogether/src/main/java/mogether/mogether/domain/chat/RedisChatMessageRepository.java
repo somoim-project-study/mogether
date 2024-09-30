@@ -5,11 +5,12 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+
+import static mogether.mogether.domain.TimeConverter.toLocalDateTime;
 
 @Repository
 public class RedisChatMessageRepository {
@@ -24,13 +25,51 @@ public class RedisChatMessageRepository {
         this.hashOperations = chatMessageRedisTemplate.opsForHash();
     }
 
-    public Optional<ChatMessage> findById(Long roomId, String id) {
-        return Optional.ofNullable(hashOperations.get(getRoomKey(roomId), id));
+    public List<ChatMessage> findByRoomId(Long roomId) {
+        String roomKey = getRoomKey(String.valueOf(roomId));
+        return hashOperations.values(roomKey);
     }
 
-    public List<ChatMessage> findByRoomId(Long roomId) {
-        String roomKey = getRoomKey(roomId);
-        return hashOperations.values(roomKey);
+    public void save(ChatMessage chatMessage) {
+        String roomKey = getRoomKey(chatMessage.getRoomId());
+        hashOperations.put(roomKey, chatMessage.getId(), chatMessage);
+    }
+
+    public List<ChatMessage> findMessagesAfter(LocalDateTime lastSyncTime) {
+        Set<String> roomKeys = chatMessageRedisTemplate.keys(ROOM_KEY_PREFIX + "*");
+
+        if (roomKeys == null || roomKeys.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return roomKeys.stream()
+                .flatMap(roomKey -> hashOperations.values(roomKey).stream())
+                .filter(message -> toLocalDateTime(message.getCreatedAt()).isAfter(lastSyncTime))
+                .toList();
+    }
+
+    private String getRoomKey(String roomId) {
+        return ROOM_KEY_PREFIX + roomId;
+    }
+
+    public void clearAll() {
+        Set<String> roomKeys = chatMessageRedisTemplate.keys(ROOM_KEY_PREFIX + "*");
+        if (roomKeys != null) {
+            for (String roomKey : roomKeys) {
+                chatMessageRedisTemplate.delete(roomKey);
+            }
+        }
+    }
+
+    public void saveAllToRedis(List<ChatMessage> messages) {
+        for (ChatMessage message : messages) {
+            String roomKey = getRoomKey(message.getRoomId());
+            hashOperations.put(roomKey, message.getId(), message);
+        }
+    }
+
+    public void deleteById(String roomId, String id) {
+        hashOperations.delete(getRoomKey(roomId), id);
     }
 
     public List<ChatMessage> findAll() {
@@ -44,36 +83,5 @@ public class RedisChatMessageRepository {
         }
 
         return chatMessages;
-    }
-
-    public void save(ChatMessage chatMessage) {
-        String roomKey = getRoomKey(chatMessage.getRoomId());
-        hashOperations.put(roomKey, chatMessage.getId(), chatMessage);
-        chatMessageRedisTemplate.expire(roomKey, Duration.ofHours(25));
-    }
-
-    public void saveAllToRedis(List<ChatMessage> messages) {
-        for (ChatMessage message : messages) {
-            String roomKey = getRoomKey(message.getRoomId());
-            hashOperations.put(roomKey, message.getId(), message);
-            chatMessageRedisTemplate.expire(roomKey, Duration.ofHours(25));
-        }
-    }
-
-    public void clearAll() {
-        Set<String> roomKeys = chatMessageRedisTemplate.keys(ROOM_KEY_PREFIX + "*");
-        if (roomKeys != null) {
-            for (String roomKey : roomKeys) {
-                chatMessageRedisTemplate.delete(roomKey);  // Delete each room key
-            }
-        }
-    }
-
-    public void deleteById(Long roomId, Long id) {
-        hashOperations.delete(getRoomKey(roomId), String.valueOf(id));
-    }
-
-    private String getRoomKey(Long roomId) {
-        return ROOM_KEY_PREFIX + roomId;
     }
 }

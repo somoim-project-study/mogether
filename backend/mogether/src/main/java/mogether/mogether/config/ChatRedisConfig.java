@@ -39,7 +39,6 @@ public class ChatRedisConfig {
         return redisTemplate;
     }
 
-
     @Bean
     public RedisConnectionFactory chatRedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
@@ -64,8 +63,21 @@ public class ChatRedisConfig {
         RedisTemplate<String, ChatMessage> chatMessageRedisTemplate = new RedisTemplate<>();
         chatMessageRedisTemplate.setConnectionFactory(chatRedisConnectionFactory());
         chatMessageRedisTemplate.setKeySerializer(new StringRedisSerializer());
-        chatMessageRedisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ChatMessage.class));
+
+        Jackson2JsonRedisSerializer<ChatMessage> serializer = new Jackson2JsonRedisSerializer<>(ChatMessage.class);
+        chatMessageRedisTemplate.setHashValueSerializer(serializer);
+        chatMessageRedisTemplate.setValueSerializer(serializer);
         return chatMessageRedisTemplate;
+    }
+
+    @Bean
+    @Qualifier("timeRedisTemplate")
+    public RedisTemplate<String, String> timeRedisTemplate() {
+        RedisTemplate<String, String> timeRedisTemplate = new RedisTemplate<>();
+        timeRedisTemplate.setConnectionFactory(chatRedisConnectionFactory());
+        timeRedisTemplate.setKeySerializer(new StringRedisSerializer());
+        timeRedisTemplate.setValueSerializer(new StringRedisSerializer());
+        return timeRedisTemplate;
     }
 
     @Bean
