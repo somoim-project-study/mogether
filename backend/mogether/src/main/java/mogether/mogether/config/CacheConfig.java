@@ -64,7 +64,7 @@ public class CacheConfig {
 
         //리소스 유형(게시글, 프로필)에 따라 만료 시간을 다르게 지정
         Map<String, RedisCacheConfiguration> redisCacheConfigMap = new HashMap<>();
-        redisCacheConfigMap.put("user", defaultConfig.entryTtl(Duration.ofHours(25)));
+//        redisCacheConfigMap.put("user", defaultConfig.entryTtl(Duration.ofHours(25)));
 
         return RedisCacheManager.builder(chatRedisConnectionFactory)
                 .withInitialCacheConfigurations(redisCacheConfigMap)
