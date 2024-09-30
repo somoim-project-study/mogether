@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -20,8 +19,8 @@ public class ChatMessage implements Serializable {
     @Id
     private String id;
 
-    private Long roomId;
-    private Long senderId;
+    private String roomId;
+    private String senderId;
     private String senderNickname;
     private String senderImageUrl;
     private String message;

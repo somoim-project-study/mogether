@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import mogether.mogether.domain.chat.ChatMessage;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,13 +23,12 @@ public class ChatMessageResponse {
     public static ChatMessageResponse of(ChatMessage chatMessage) {
         return new ChatMessageResponse(
                 chatMessage.getId(),
-                chatMessage.getRoomId(),
-                chatMessage.getSenderId(),
+                Long.parseLong(chatMessage.getRoomId()),
+                Long.parseLong(chatMessage.getSenderId()),
                 chatMessage.getSenderNickname(),
                 chatMessage.getSenderImageUrl(),
                 chatMessage.getMessage(),
                 chatMessage.getCreatedAt()
         );
     }
-
 }

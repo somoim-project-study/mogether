@@ -56,15 +56,15 @@ public class ChatService {
         return ChatRoomListResponse.of(chatRoomList);
     }
 
-    private String createTopic(Long roomId) {
+    private String createTopic(String roomId) {
         return "chatRoom:" + roomId;
     }
 
     private ChatMessage createChatMessage(ChatMessageRequest request, UserCache user) {
         return ChatMessage.builder()
                 .id(UUID.randomUUID().toString())
-                .roomId(request.getRoomId())
-                .senderId(user.getSenderId())
+                .roomId(String.valueOf(request.getRoomId()))
+                .senderId(String.valueOf(user.getSenderId()))
                 .senderNickname(user.getSenderNickname())
                 .senderImageUrl(user.getSenderImageUrl())
                 .message(request.getMessage())
