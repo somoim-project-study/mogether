@@ -49,14 +49,16 @@ public class ChatMessageScheduler {
 
     @PreDestroy
     public void persistChatMessageCache() {
-        System.out.println("test");
         applyToRDB();
     }
 
     @PostConstruct
     public void retrieveChatMessage() {
+        System.out.println("### PostConstruct 실행");
         redisChatMessageRepository.clearAll();
         List<ChatMessage> chatMessageList = chatMessageRepository.findAll();
         redisChatMessageRepository.saveAllToRedis(chatMessageList);
+
+        System.out.println("### PostConstruct 실행");
     }
 }
