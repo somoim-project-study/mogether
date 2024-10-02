@@ -49,6 +49,7 @@ public class ChatMessageScheduler {
 
     @PreDestroy
     public void persistChatMessageCache() {
+        System.out.println("test");
         applyToRDB();
     }
 
