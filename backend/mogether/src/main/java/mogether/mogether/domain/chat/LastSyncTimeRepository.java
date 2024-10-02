@@ -1,9 +1,13 @@
 package mogether.mogether.domain.chat;
 
+import mogether.mogether.domain.TimeConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Repository
 public class LastSyncTimeRepository {
@@ -19,7 +23,8 @@ public class LastSyncTimeRepository {
     }
 
     public String getLastSyncTime() {
-        return valueOperations.get(KEY);
+        return Optional.ofNullable(valueOperations.get(KEY))
+                .orElse(TimeConverter.toString(LocalDateTime.now()));
     }
 
     public void updateLastSyncTime(String now) {
