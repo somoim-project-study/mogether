@@ -24,11 +24,15 @@ public class ChatMessageScheduler {
     private final LastSyncTimeRepository lastSyncTimeRepository;
 
     @Transactional
-    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
+//    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
+    @Scheduled(cron = "0 * * * * *")
     public void applyToRDB() {
         log.info("### Scheduler 실행");
 
         LocalDateTime lastSyncTime = getLastSyncTime();
+
+        log.info("### localdateTime - {}", lastSyncTime);
+
         List<ChatMessage> newMessages = redisChatMessageRepository.findMessagesAfter(lastSyncTime);
 
         chatMessageRepository.saveAll(newMessages);
@@ -37,11 +41,16 @@ public class ChatMessageScheduler {
 
     private LocalDateTime getLastSyncTime() {
         String lastSyncTime = lastSyncTimeRepository.getLastSyncTime();
+        log.info("### String - {}", lastSyncTime);
+
         return TimeConverter.toLocalDateTime(lastSyncTime);
     }
 
     private void updateLastSyncTime() {
         String currentTime = TimeConverter.toString(LocalDateTime.now());
+
+        log.info("### String - {}", currentTime);
+
         lastSyncTimeRepository.updateLastSyncTime(currentTime);
     }
 }
