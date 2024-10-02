@@ -1,5 +1,7 @@
 package mogether.mogether.scheduler;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mogether.mogether.domain.TimeConverter;
@@ -17,13 +19,13 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@Transactional
 public class ChatMessageScheduler {
 
     private final ChatMessageRepository chatMessageRepository;
     private final RedisChatMessageRepository redisChatMessageRepository;
     private final LastSyncTimeRepository lastSyncTimeRepository;
 
-    @Transactional
     @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
 //    @Scheduled(cron = "0 * * * * *")
     public void applyToRDB() {
@@ -43,5 +45,17 @@ public class ChatMessageScheduler {
     private void updateLastSyncTime() {
         String currentTime = TimeConverter.toString(LocalDateTime.now());
         lastSyncTimeRepository.updateLastSyncTime(currentTime);
+    }
+
+    @PreDestroy
+    public void persistChatMessageCache() {
+        applyToRDB();
+    }
+
+    @PostConstruct
+    public void retrieveChatMessage() {
+        redisChatMessageRepository.clearAll();
+        List<ChatMessage> chatMessageList = chatMessageRepository.findAll();
+        redisChatMessageRepository.saveAllToRedis(chatMessageList);
     }
 }
