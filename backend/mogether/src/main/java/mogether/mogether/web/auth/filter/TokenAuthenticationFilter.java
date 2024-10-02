@@ -40,8 +40,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        log.info("### {}", "token auth filter");
-
         if (isPermittedURI(request) || (isForAnonymousURI(request) && !hasTokenHeader(request))) {
             filterChain.doFilter(request, response);
             return;

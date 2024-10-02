@@ -25,9 +25,14 @@ public class ChatMessageScheduler {
 
     @Transactional
 //    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
-    @Scheduled(cron = "0 * * * * *")
+//    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(fixedRate = 60000)
     public void applyToRDB() {
         log.info("### Scheduler 실행");
+
+        System.out.println();
+        System.out.println("### Scheduler 실행 by Sout");
+
 
         LocalDateTime lastSyncTime = getLastSyncTime();
 
