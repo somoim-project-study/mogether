@@ -40,6 +40,7 @@ public class ChatRedisConfig {
     }
 
     @Bean
+    @Qualifier("chatRedisConnectionFactory")
     public RedisConnectionFactory chatRedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(host);
