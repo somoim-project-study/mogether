@@ -26,8 +26,8 @@ public class ChatMessageScheduler {
     private final RedisChatMessageRepository redisChatMessageRepository;
     private final LastSyncTimeRepository lastSyncTimeRepository;
 
-    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
-//    @Scheduled(cron = "0 * * * * *")
+//    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
+    @Scheduled(cron = "0 * * * * *")
     public void applyToRDB() {
         log.info("### Scheduler 실행");
         LocalDateTime lastSyncTime = getLastSyncTime();
