@@ -20,6 +20,7 @@ public class TokenRedisConfig {
     private int port;
 
     @Bean
+    @Qualifier("tokenRedisConnectionFactory")
     public RedisConnectionFactory tokenRedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(host);
