@@ -28,17 +28,16 @@ public class ChatMessageScheduler {
     private final ChatMessageRepository chatMessageRepository;
     private final RedisChatMessageRepository redisChatMessageRepository;
     private final LastSyncTimeRepository lastSyncTimeRepository;
-    private final LettuceConnectionFactory chatRedisConnectionFactory;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+//    private final LettuceConnectionFactory chatRedisConnectionFactory;
+//    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public ChatMessageScheduler(@Qualifier("chatRedisConnectionFactory") LettuceConnectionFactory chatRedisConnectionFactory,
-                                ChatMessageRepository chatMessageRepository,
+    public ChatMessageScheduler(ChatMessageRepository chatMessageRepository,
                                 RedisChatMessageRepository redisChatMessageRepository,
                                 LastSyncTimeRepository lastSyncTimeRepository) {
         this.chatMessageRepository = chatMessageRepository;
         this.redisChatMessageRepository = redisChatMessageRepository;
         this.lastSyncTimeRepository = lastSyncTimeRepository;
-        this.chatRedisConnectionFactory = chatRedisConnectionFactory;
+//        this.chatRedisConnectionFactory = chatRedisConnectionFactory;
     }
 
     @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
@@ -65,49 +64,49 @@ public class ChatMessageScheduler {
         lastSyncTimeRepository.updateLastSyncTime(currentTime);
     }
 
-    @PreDestroy
-    public void persistChatMessagesOnShutdown() {
-        executorService.submit(() -> {
-            try {
-                chatRedisConnectionFactory.start();
-                applyToRDB();
-            } catch (Exception e) {
-                log.error("### {}", e.getMessage());
-            }
-        });
-
-        shutdownExecutorAndRedisConnection();
-    }
-
-    // Helper method to shut down the executor service and Redis connection
-    private void shutdownExecutorAndRedisConnection() {
-        // Shutdown the executor service and wait for the task to complete
-        executorService.shutdown();
-        try {
-            // Wait for the persistence task to complete
-            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
-                executorService.shutdownNow(); // Force shutdown if not done in 30 seconds
-            }
-
-            // After task completion, shut down Redis connection
-            if (chatRedisConnectionFactory != null && chatRedisConnectionFactory.isRunning()) {
-                chatRedisConnectionFactory.stop();
-                System.out.println("Redis connection stopped.");
-            }
-
-        } catch (InterruptedException ie) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
-
-//    @PostConstruct
-    public void retrieveChatMessage() {
-        System.out.println("### PostConstruct 실행");
-        redisChatMessageRepository.clearAll();
-        List<ChatMessage> chatMessageList = chatMessageRepository.findAll();
-        redisChatMessageRepository.saveAllToRedis(chatMessageList);
-
-        System.out.println("### PostConstruct 실행");
-    }
+//    @PreDestroy
+//    public void persistChatMessagesOnShutdown() {
+//        executorService.submit(() -> {
+//            try {
+//                chatRedisConnectionFactory.start();
+//                applyToRDB();
+//            } catch (Exception e) {
+//                log.error("### {}", e.getMessage());
+//            }
+//        });
+//
+//        shutdownExecutorAndRedisConnection();
+//    }
+//
+//    // Helper method to shut down the executor service and Redis connection
+//    private void shutdownExecutorAndRedisConnection() {
+//        // Shutdown the executor service and wait for the task to complete
+//        executorService.shutdown();
+//        try {
+//            // Wait for the persistence task to complete
+//            if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
+//                executorService.shutdownNow(); // Force shutdown if not done in 30 seconds
+//            }
+//
+//            // After task completion, shut down Redis connection
+//            if (chatRedisConnectionFactory != null && chatRedisConnectionFactory.isRunning()) {
+//                chatRedisConnectionFactory.stop();
+//                System.out.println("Redis connection stopped.");
+//            }
+//
+//        } catch (InterruptedException ie) {
+//            executorService.shutdownNow();
+//            Thread.currentThread().interrupt();
+//        }
+//    }
+//
+////    @PostConstruct
+//    public void retrieveChatMessage() {
+//        System.out.println("### PostConstruct 실행");
+//        redisChatMessageRepository.clearAll();
+//        List<ChatMessage> chatMessageList = chatMessageRepository.findAll();
+//        redisChatMessageRepository.saveAllToRedis(chatMessageList);
+//
+//        System.out.println("### PostConstruct 실행");
+//    }
 }
