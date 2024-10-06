@@ -41,8 +41,8 @@ public class ChatMessageScheduler {
         this.chatRedisConnectionFactory = chatRedisConnectionFactory;
     }
 
-//    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
+//    @Scheduled(cron = "0 * * * * *")
     public void applyToRDB() {
         log.info("### Scheduler 실행");
         LocalDateTime lastSyncTime = getLastSyncTime();
@@ -101,7 +101,7 @@ public class ChatMessageScheduler {
         }
     }
 
-    @PostConstruct
+//    @PostConstruct
     public void retrieveChatMessage() {
         System.out.println("### PostConstruct 실행");
         redisChatMessageRepository.clearAll();
