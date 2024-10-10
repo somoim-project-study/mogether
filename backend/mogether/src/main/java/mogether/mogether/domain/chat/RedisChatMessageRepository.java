@@ -1,5 +1,6 @@
 package mogether.mogether.domain.chat;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,6 +13,7 @@ import java.util.Set;
 
 import static mogether.mogether.domain.TimeConverter.toLocalDateTime;
 
+@Slf4j
 @Repository
 public class RedisChatMessageRepository {
 
@@ -19,6 +21,7 @@ public class RedisChatMessageRepository {
 
     private final RedisTemplate<String, ChatMessage> chatMessageRedisTemplate;
     private final HashOperations<String, String, ChatMessage> hashOperations;
+    //todo: hash -> list
 
     public RedisChatMessageRepository(@Qualifier("chatMessageRedisTemplate") RedisTemplate<String, ChatMessage> chatMessageRedisTemplate) {
         this.chatMessageRedisTemplate = chatMessageRedisTemplate;
@@ -31,6 +34,9 @@ public class RedisChatMessageRepository {
     }
 
     public void save(ChatMessage chatMessage) {
+        log.info("### chatMessage: {}", chatMessage.getMessage());
+        log.info("### createdAt: {}", chatMessage.getCreatedAt());
+
         String roomKey = getRoomKey(chatMessage.getRoomId());
         hashOperations.put(roomKey, chatMessage.getId(), chatMessage);
     }
