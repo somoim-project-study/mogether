@@ -31,8 +31,8 @@ chmod +x $JAR_NAME
 echo "> $JAR_NAME 실행" >> /home/ubuntu/app/deploy.log
 
 # nohup java -jar -Duser.timezone=Asia/Seoul $JAR_NAME >> $REPOSITORY/nohup.out 2>&1 &
-nohup java -jar -Dspring.profiles.active=prod $JAR_NAME >> $REPOSITORY/nohup.out 2>&1 &
-
+# nohup java -jar -Dspring.profiles.active=prod $JAR_NAME >> $REPOSITORY/nohup.out 2>&1 &
+nohup java -Duser.timezone=Asia/Seoul -jar -Dspring.profiles.active=prod $JAR_NAME >> $REPOSITORY/nohup.out 2>&1 &
 
 #!/bin/bash
 
