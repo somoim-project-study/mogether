@@ -40,15 +40,14 @@ public class ChatMessageScheduler {
 //        this.chatRedisConnectionFactory = chatRedisConnectionFactory;
     }
 
-//    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 4 * * *") //매일 4AM Redis-MySQL 동기화 작업
+//    @Scheduled(cron = "0 * * * * *")
     public void applyToRDB() {
         log.info("### Scheduler 실행");
         LocalDateTime lastSyncTime = getLastSyncTime();
         List<ChatMessage> newMessages = redisChatMessageRepository.findMessagesAfter(lastSyncTime);
 
         log.info("### lastSyncTime : {}", lastSyncTime);
-
         log.info("### new messages : {}", newMessages.size());
 
         chatMessageRepository.saveAll(newMessages);
