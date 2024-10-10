@@ -48,6 +48,7 @@ public class ChatMessageScheduler {
         List<ChatMessage> newMessages = redisChatMessageRepository.findMessagesAfter(lastSyncTime);
 
         log.info("### lastSyncTime : {}", lastSyncTime);
+
         log.info("### new messages : {}", newMessages.size());
 
         chatMessageRepository.saveAll(newMessages);
